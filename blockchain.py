@@ -26,7 +26,7 @@ class Blockchain:
     def get_previous_block(self):
         return self.chain[-1]
     
-    def proof_of_word(self, previous_proof):
+    def proof_of_work(self, previous_proof):
         new_proof = 1
         check_proof = False
         while not check_proof:
@@ -56,3 +56,21 @@ class Blockchain:
              previous_block = block
              block_index += 1
          return True
+     
+app = Flask(__name__)
+
+blockchain = Blockchain()
+
+@app.route('/mine_block', methods = ['GET'])
+def mine_block():
+    previous_block = blockchain.get_previous_block()
+    previous_proof = previous_block['previous_proof']
+    proof = blockchain.proof_of_work(previous_proof)
+    previous_hash = blockchain.hash(previous_block)
+    block = blockchain.create_block(proof, previous_hash)
+    response = {'message': 'Congratulations, you just mined a block!',
+                'index': block['index'],
+                'timestamp': block['timestamp'],
+                'proof': block['proof'].
+                'previous_hash': block['previous_hash']}
+    return jsonify(response), 200
